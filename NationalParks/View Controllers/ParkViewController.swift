@@ -52,6 +52,22 @@ class ParkViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    imageView.isUserInteractionEnabled = true
+    let dragInteraction = UIDragInteraction(delegate: self)
+    stackView.addInteraction(dragInteraction)
   }
+}
+
+extension ParkViewController: UIDragInteractionDelegate {
+    func dragInteraction(_ interaction: UIDragInteraction,
+                         itemsForBeginning session: UIDragSession)
+        -> [UIDragItem] {
+            guard let park = park else { return [] }
+            let provider = NSItemProvider(object: park)
+            let dragItem = UIDragItem(itemProvider: provider)
+            return [dragItem]
+    }
+    
 }
 
