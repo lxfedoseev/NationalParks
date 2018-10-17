@@ -69,5 +69,78 @@ extension ParkViewController: UIDragInteractionDelegate {
             return [dragItem]
     }
     
+    func dragInteraction(_ interaction: UIDragInteraction,
+                         previewForLifting item: UIDragItem,
+                         session: UIDragSession)
+        -> UITargetedDragPreview? {
+            // 1
+            guard let park = park, let dragView = interaction.view
+                else {
+                    return UITargetedDragPreview(view: interaction.view!)
+            }
+            // 2
+            let parkView = ParkDragView(park.image, name: park.name)
+            let parameters = UIDragPreviewParameters()
+            parameters.visiblePath =
+                UIBezierPath(roundedRect: parkView.bounds,
+                             cornerRadius: 20)
+            // 3
+            let dragPoint = session.location(in: dragView)
+            let target = UIDragPreviewTarget(container: dragView,
+                                             center: dragPoint)
+            return UITargetedDragPreview(view: parkView,
+                                         parameters: parameters,
+                                         target: target)
+    }
+    
+    // 1
+    func dragInteraction(
+        _ interaction: UIDragInteraction,
+        willAnimateLiftWith animator: UIDragAnimating,
+        session: UIDragSession) {
+        animator.addAnimations {
+            self.imageView.alpha = 0.25
+        }
+    }
+    // 2
+    func dragInteraction(_ interaction: UIDragInteraction,
+                         session: UIDragSession,
+                         didEndWith operation: UIDropOperation) {
+        if operation == .copy {
+            imageView.alpha = 1.0
+        }
+    }
+    // 3
+    func dragInteraction(
+        _ interaction: UIDragInteraction,
+        item: UIDragItem,
+        willAnimateCancelWith animator: UIDragAnimating) {
+        animator.addAnimations {
+            self.imageView.alpha = 1.0
+        }
+    }
+    
+    func dragInteraction(
+        _ interaction: UIDragInteraction,
+        previewForCancelling item: UIDragItem,
+        withDefault defaultPreview: UITargetedDragPreview)
+        -> UITargetedDragPreview? {
+            guard let superview = imageView.superview
+                else { return defaultPreview }
+            let target = UIDragPreviewTarget(container: superview,
+                                             center: imageView.center)
+            return UITargetedDragPreview(
+                view: imageView,
+                parameters: UIDragPreviewParameters(),
+                target: target)
+    }
+    
+    func dragInteraction(
+        _ interaction: UIDragInteraction,
+        sessionIsRestrictedToDraggingApplication
+        session: UIDragSession) -> Bool {
+        return false
+    }
+    
 }
 
